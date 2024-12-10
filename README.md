@@ -1,13 +1,4 @@
-伪装为新闻网站：使用简单的新闻网站布局，伪装成静态网站。
-VLESS 代理：支持 VLESS 协议，提供加密和隐匿功能。
-一键自建 ProxyIP 和 CF 反代 IP：通过 Cloudflare Workers 实现反向代理，并提供自建 ProxyIP 和 Cloudflare 反代 IP 选择功能。
-CF 优选 IP 脚本：自动输出美国、美洲、欧洲地区最佳优选 IP，以便选择最优连接。
-懒人小白专用：无需频繁更新订阅，客户端可直接选择最佳 IP 节点。
-方案设计
-新闻网站伪装：使用 HTML 和 CSS 伪装成新闻网站主页，提升隐匿性。
-Cloudflare Workers 实现反向代理：提供 VLESS 代理的 Cloudflare 反代。
-自动化优选脚本：通过检测不同地区的 IP 延迟，选择最佳 IP，自动输出美洲、亚洲、欧洲最佳节点。
-默认节点：默认配置为 Cloudflare 官方 IP，不需要频繁更新订阅。
+伪装为新闻网站：使用简单的新闻网站布局，伪装成静态网站。 VLESS 代理：支持 VLESS 协议，提供加密和隐匿功能。 通过 Cloudflare Workers 实现反向代理，并提供自建 ProxyIP 和 Cloudflare 反代 IP 选择功能。 新闻网站伪装：使用 HTML 和 CSS 伪装成新闻网站主页，提升隐匿性自动化优选脚本
 
 **演示地址：https://h5.wslyszxbjn.us.kg/**
 
