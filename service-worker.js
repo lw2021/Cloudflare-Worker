@@ -1,76 +1,100 @@
 export default {
-  async fetch(request) {
-    const url = new URL(request.url);
-    const path = url.pathname;
+  async fetch(req) {
+    const n = new URL(req.url);
+    const p = n.pathname;
+    const u = req.headers.get("User-Agent");
 
-    // 节点配置，包括 CF 官方 IP 和其他自建代理 IP
-    const nodes = [
+    // 节点池配置，包括 CF 官方 IP 和自建 Proxy
+    const a = [
       {
-        region: "US",
-        ip: "104.16.166.19", // Cloudflare 美国官方 IP
-        port: "443",
-        uuid: "fixed-uuid-us",
-        path: "/vless",
+        r: "US",
+        i: "104.16.166.19", // Cloudflare 美国官方 IP
+        t: "443",
+        u: "fixed-uuid-us",
+        s: "/vless",
       },
       {
-        region: "EU",
-        ip: "104.24.231.211", // Cloudflare 欧洲官方 IP
-        port: "443",
-        uuid: "fixed-uuid-eu",
-        path: "/vless",
+        r: "EU",
+        i: "104.24.231.211", // Cloudflare 欧洲官方 IP
+        t: "443",
+        u: "fixed-uuid-eu",
+        s: "/vless",
       },
       {
-        region: "ASIA",
-        ip: "172.64.150.202", // Cloudflare 亚洲官方 IP
-        port: "443",
-        uuid: "fixed-uuid-asia",
-        path: "/vless",
+        r: "ASIA",
+        i: "172.64.150.202", // Cloudflare 亚洲官方 IP
+        t: "443",
+        u: "fixed-uuid-asia",
+        s: "/vless",
       },
       {
-        region: "US-Proxy",
-        ip: "your-proxy-ip", // 用户自建的代理 IP
-        port: "443",
-        uuid: "custom-uuid-1", // 自定义 UUID
-        path: "/vless",
+        r: "US-Proxy",
+        i: "your-proxy-ip", // 用户自建的代理 IP
+        t: "443",
+        u: "custom-uuid-1", // 自定义 UUID
+        s: "/vless",
       },
       {
-        region: "EU-Proxy",
-        ip: "your-proxy-ip", // 用户自建的代理 IP
-        port: "443",
-        uuid: "custom-uuid-2", // 自定义 UUID
-        path: "/vless",
+        r: "EU-Proxy",
+        i: "your-proxy-ip", // 用户自建的代理 IP
+        t: "443",
+        u: "custom-uuid-2", // 自定义 UUID
+        s: "/vless",
       },
       {
-        region: "ASIA-Proxy",
-        ip: "your-proxy-ip", // 用户自建的代理 IP
-        port: "443",
-        uuid: "custom-uuid-3", // 自定义 UUID
-        path: "/vless",
+        r: "ASIA-Proxy",
+        i: "your-proxy-ip", // 用户自建的代理 IP
+        t: "443",
+        u: "custom-uuid-3", // 自定义 UUID
+        s: "/vless",
       },
     ];
 
-    // 获取节点延迟并选择最佳节点
-    async function testLatency(node) {
-      const start = Date.now();
-      const response = await fetch(`https://${node.ip}:${node.port}${node.path}`);
-      const end = Date.now();
+    // Netflix 和 YouTube 访问规则
+    const rules = {
+      "netflix.com": { region: "US", path: "/netflix", proxy: true },
+      "youtube.com": { region: "US", path: "/youtube", proxy: true },
+    };
+
+    // 自动选择最佳节点
+    async function d(e) {
+      const t = Date.now();
+      const r = await fetch(`https://${e.i}:${e.t}${e.s}`);
+      const o = Date.now();
       return {
-        node,
-        latency: end - start,
+        n: e,
+        l: o - t,
       };
     }
 
-    // 测试所有节点并选择延迟最小的节点
-    async function getBestNode() {
-      const nodeLatencies = await Promise.all(
-        nodes.map((node) => testLatency(node))
+    async function m() {
+      const e = await Promise.all(
+        a.map((e) => d(e))
       );
-      const bestNode = nodeLatencies.sort((a, b) => a.latency - b.latency)[0];
-      return bestNode.node;
+      const t = e.sort((e, t) => e.l - t.l)[0];
+      return t.n;
+    }
+
+    // 访问Netflix和YouTube的自动规则
+    if (p.includes("netflix.com") || p.includes("youtube.com")) {
+      const rule = rules[n.hostname];
+      if (rule && rule.proxy) {
+        // 判断是否是Netflix或YouTube流量，并优先选择代理节点
+        const e = await m();
+        return new Response(
+          JSON.stringify({
+            region: e.r,
+            ip: e.i,
+            uuid: e.u,
+            path: rule.path, // 动态路径
+          }),
+          { headers: { "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // 新闻网站伪装首页
-    if (path === "/") {
+    if (p === "/") {
       return new Response(
         `<!DOCTYPE html>
         <html lang="en">
@@ -121,45 +145,44 @@ export default {
     }
 
     // 获取最佳节点
-    if (path === "/best-node") {
-      const bestNode = await getBestNode();
+    if (p === "/best-node") {
+      const e = await m();
       return new Response(
         JSON.stringify({
-          region: bestNode.region,
-          ip: bestNode.ip,
-          uuid: bestNode.uuid,
+          region: e.r,
+          ip: e.i,
+          uuid: e.u,
         }),
         { headers: { "Content-Type": "application/json" } }
       );
     }
 
     // 返回节点订阅
-    if (path === "/sub") {
-      const subscription = nodes.map((node) => {
+    if (p === "/sub") {
+      const e = a.map((e) => {
         return `vless://${btoa(
           JSON.stringify({
             v: "2",
-            ps: node.region,
-            add: node.ip,
-            port: node.port,
-            id: node.uuid,
+            ps: e.r,
+            add: e.i,
+            port: e.t,
+            id: e.u,
             aid: "0",
             net: "ws",
             type: "none",
-            host: node.ip,
-            path: node.path,
+            host: e.i,
+            path: e.s,
             tls: "tls",
           })
         )}`;
       });
 
-      const encodedSubscription = btoa(subscription.join("\n"));
-      return new Response(encodedSubscription, {
+      const t = btoa(e.join("\n"));
+      return new Response(t, {
         headers: { "Content-Type": "text/plain" },
       });
     }
 
-    // 返回 404 页面
     return new Response("404 Not Found", { status: 404 });
   },
 };
