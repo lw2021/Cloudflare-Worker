@@ -11,30 +11,33 @@ Cloudflare Workers 实现反向代理：提供 VLESS 代理的 Cloudflare 反代
 
 **演示地址：https://h5.wslyszxbjn.us.kg/**
 
-代码说明
+混淆和增强隐匿性：
+
+通过将变量名替换为无意义的短名称（如 r, i, t, u, s），使代码难以理解和逆向。
+通过改动函数名、结构等，提高代码的隐匿性。
+Netflix 和 YouTube 特殊访问规则：
+
+rules 对象定义了对于 Netflix 和 YouTube 的特殊规则，当请求来自这些服务时，优先选择最优代理节点。
+每个访问规则通过检查主机名来匹配请求，若符合条件，则优先选择代理节点，并返回相关节点信息。
 新闻网站伪装：
 
-/ 路径返回一个简单的新闻网站布局，包括标题、导航栏和文章内容，伪装成普通的新闻站点。
-优选 IP 脚本：
+/ 路径提供一个简单的新闻网站主页，用于伪装。
+优选节点和订阅：
 
-/best-node 路径会自动选择延迟最低的节点（美洲、欧洲、亚洲等地区），并返回最佳节点的信息。
-节点延迟通过 testLatency 函数进行测试，选择响应时间最短的节点。
-订阅功能：
-
-/sub 路径返回所有节点的 VMESS 订阅内容，以 Base64 编码的形式返回，兼容主流代理客户端。
-自建 Proxy 和 CF 反代 IP：
-
-支持自建代理 IP 和 Cloudflare 官方 IP 节点，并通过 uuid、region 等字段灵活配置。
-使用步骤
+/best-node 路径返回延迟最低的节点信息。
+/sub 路径返回所有节点的订阅信息，兼容 VLESS 客户端。
+使用方法：
 部署到 Cloudflare Workers：
 
-将代码保存为 worker.js 并上传到 Cloudflare Workers。
-部署并获取 Worker URL，例如 https://your-worker-url/。
+将此代码上传到 Cloudflare Workers 并部署。
+访问您的 Worker URL（如 https://your-worker-url/）。
 获取订阅：
 
 访问 https://your-worker-url/sub 获取订阅内容。
 获取最佳节点：
 
+访问 https://your-worker-url/best-node 获取最佳节点信息。
+通过这种方式，您不仅可以隐藏 Cloudflare Workers 的真实用途，还可以为特定服务（如 Netflix 和 YouTube）提供优化的代理服务，且无需频繁更新订阅。
 访问 https://your-worker-url/best-node 获取最佳节点的详细信息。
 测试节点选择：
 
