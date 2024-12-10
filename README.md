@@ -9,7 +9,7 @@ Cloudflare Workers 实现反向代理：提供 VLESS 代理的 Cloudflare 反代
 自动化优选脚本：通过检测不同地区的 IP 延迟，选择最佳 IP，自动输出美洲、亚洲、欧洲最佳节点。
 默认节点：默认配置为 Cloudflare 官方 IP，不需要频繁更新订阅。
 
-
+**演示地址：https://h5.wslyszxbjn.us.kg/**
 
 代码说明
 新闻网站伪装：
